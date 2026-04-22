@@ -1,4 +1,4 @@
-const BASE_WIDTH = 1280;
+const BASE_WIDTH = 720;
 const BASE_HEIGHT = 720;
 
 let canvas;
