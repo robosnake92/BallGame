@@ -25,13 +25,14 @@ export class Bucket {
     // Side walls to form a U-shape
     const wallThickness = 6;
     const wallHeight = BUCKET_HEIGHT + 10;
+    const initX = BASE_WIDTH / 2;
     this.leftWall = Bodies.rectangle(
-      -BUCKET_WIDTH / 2 + wallThickness / 2, -5,
+      initX - BUCKET_WIDTH / 2 + wallThickness / 2, BUCKET_Y - 5,
       wallThickness, wallHeight,
       { isStatic: true, label: 'bucketWall' }
     );
     this.rightWall = Bodies.rectangle(
-      BUCKET_WIDTH / 2 - wallThickness / 2, -5,
+      initX + BUCKET_WIDTH / 2 - wallThickness / 2, BUCKET_Y - 5,
       wallThickness, wallHeight,
       { isStatic: true, label: 'bucketWall' }
     );

@@ -2,7 +2,7 @@ import { Peg, PEG_TYPES } from './peg.js';
 import { BASE_WIDTH, BASE_HEIGHT } from '../engine/renderer.js';
 
 const ROWS = 10;
-const COLS = 11; // odd rows get 11, even rows get 10
+const COLS = 10; // all rows get 10 pegs, odd rows offset by half spacing
 const MARGIN_X = 140;
 const MARGIN_TOP = 120;
 const MARGIN_BOTTOM = 140;
@@ -18,7 +18,7 @@ export function createBoard() {
 
   for (let row = 0; row < ROWS; row++) {
     const isOffset = row % 2 === 1;
-    const colsInRow = isOffset ? COLS - 1 : COLS;
+    const colsInRow = COLS;
     const offsetX = isOffset ? colSpacing / 2 : 0;
 
     for (let col = 0; col < colsInRow; col++) {

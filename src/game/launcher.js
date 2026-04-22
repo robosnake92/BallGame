@@ -1,4 +1,4 @@
-import { drawLine, drawCircle, getMouseGamePos, BASE_WIDTH } from '../engine/renderer.js';
+import { drawLine, drawCircle, drawPolygon, getMouseGamePos, BASE_WIDTH } from '../engine/renderer.js';
 
 const LAUNCHER_X = BASE_WIDTH / 2;
 const LAUNCHER_Y = 40;
@@ -37,15 +37,20 @@ export class Launcher {
   }
 
   draw() {
-    // Launcher base circle
-    drawCircle(this.x, this.y, 14, '#555');
-    drawCircle(this.x, this.y, 10, '#888');
+    // Cannon barrel — triangular shape that rotates with aim
+    const barrelLen = 30;
+    const barrelWidth = 8;
+    const cannonPoints = [
+      { x: 0, y: -barrelWidth },
+      { x: barrelLen, y: -barrelWidth / 2 },
+      { x: barrelLen, y: barrelWidth / 2 },
+      { x: 0, y: barrelWidth },
+    ];
+    drawPolygon(cannonPoints, '#888', this.x, this.y, this.angle);
 
-    // Cannon barrel — line in aim direction
-    const barrelLen = 25;
-    const bx = this.x + Math.cos(this.angle) * barrelLen;
-    const by = this.y + Math.sin(this.angle) * barrelLen;
-    drawLine(this.x, this.y, bx, by, '#aaa', 6);
+    // Launcher base circle (drawn on top of barrel)
+    drawCircle(this.x, this.y, 12, '#555');
+    drawCircle(this.x, this.y, 8, '#777');
 
     // Dotted guide line
     const gx1 = this.x + Math.cos(this.angle) * (barrelLen + 5);

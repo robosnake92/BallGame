@@ -75,6 +75,21 @@ export function drawText(text, x, y, color, font = '20px sans-serif', align = 'l
   ctx.restore();
 }
 
+export function drawPolygon(points, color, cx = 0, cy = 0, angle = 0) {
+  ctx.save();
+  ctx.translate(cx * scale, cy * scale);
+  ctx.rotate(angle);
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x * scale, points[0].y * scale);
+  for (let i = 1; i < points.length; i++) {
+    ctx.lineTo(points[i].x * scale, points[i].y * scale);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
 export function getScale() {
   return scale;
 }
