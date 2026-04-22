@@ -14,7 +14,7 @@ const PEG_COLORS = {
 };
 
 const HIT_COLOR = '#ffffaa';
-const PEG_RADIUS = 10;
+const PEG_RADIUS = 12;
 const FADE_DURATION = 500; // ms
 
 export class Peg {
