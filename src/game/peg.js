@@ -32,7 +32,7 @@ export class Peg {
 
     this.body = Bodies.circle(x, y, PEG_RADIUS, {
       isStatic: true,
-      restitution: 0.5,
+      restitution: 0.7,
       label: 'peg',
     });
     this.body.pegRef = this;

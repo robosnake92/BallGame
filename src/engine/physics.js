@@ -8,7 +8,7 @@ let world;
 export function initPhysics() {
   engine = Engine.create();
   world = engine.world;
-  engine.gravity.y = 1;
+  engine.gravity.y = 0.6;
   return { engine, world };
 }
 

@@ -8,7 +8,7 @@ const LAUNCH_SPEED = 12;
 export class Ball {
   constructor(x, y) {
     this.body = Bodies.circle(x, y, BALL_RADIUS, {
-      restitution: 0.5,
+      restitution: 0.8,
       friction: 0.05,
       density: 0.002,
       label: 'ball',
