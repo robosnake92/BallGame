@@ -30,6 +30,9 @@ let ballsRemaining = TOTAL_BALLS;
 let hitPegsThisShot = [];
 let resolveStartTime = 0;
 let caughtByBucket = false;
+let ballStuckTime = 0;
+const STUCK_SPEED_THRESHOLD = 0.3;
+const STUCK_DURATION = 2000; // ms of low speed before forcing resolve
 
 // Init engine and renderer
 initPhysics();
@@ -99,6 +102,7 @@ function fireBall() {
   ball.launch(launcher.getAngle());
   hitPegsThisShot = [];
   caughtByBucket = false;
+  ballStuckTime = 0;
   state = STATES.FIRING;
 }
 
@@ -146,25 +150,46 @@ function gameLoop(currentTime) {
 
   // State-specific logic
   if (state === STATES.FIRING) {
-    if (ball && (ball.isOffScreen() || caughtByBucket)) {
-      ball.destroy();
-      ball = null;
-      startResolving();
+    if (ball) {
+      if (ball.isOffScreen() || caughtByBucket) {
+        ball.destroy();
+        ball = null;
+        startResolving();
+      } else {
+        // Detect stuck ball — start fading hit pegs to unstick, keep ball in play
+        const vel = ball.body.velocity;
+        const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+        if (speed < STUCK_SPEED_THRESHOLD) {
+          ballStuckTime += delta;
+          if (ballStuckTime >= STUCK_DURATION && hitPegsThisShot.length > 0) {
+            const now = performance.now();
+            scoring.scoreHits(hitPegsThisShot);
+            for (const peg of hitPegsThisShot) {
+              peg.startRemoval(now);
+            }
+            hitPegsThisShot = [];
+            ballStuckTime = 0;
+          }
+        } else {
+          ballStuckTime = 0;
+        }
+      }
     }
   }
 
-  if (state === STATES.RESOLVING) {
-    // Update peg removal animations
+  // Update peg removal animations (during both firing and resolving)
+  if (state === STATES.FIRING || state === STATES.RESOLVING) {
     for (const peg of pegs) {
       peg.update(currentTime);
     }
+    pegs = pegs.filter(p => !p.removed);
+  }
+
+  if (state === STATES.RESOLVING) {
 
     // Check if all hit pegs have finished animating
     const allRemoved = hitPegsThisShot.every(p => p.removed);
     if (allRemoved && currentTime - resolveStartTime > RESOLVE_DELAY) {
-      // Remove cleared pegs from the array
-      pegs = pegs.filter(p => !p.removed);
-
       // Check win/lose
       if (scoring.allOrangeCleared()) {
         state = STATES.WIN;
