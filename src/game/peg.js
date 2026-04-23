@@ -1,5 +1,5 @@
 import { Bodies, Body, addBody, removeBody } from '../engine/physics.js';
-import { drawCircle, BASE_WIDTH, BASE_HEIGHT } from '../engine/renderer.js';
+import { drawCircle, drawText, BASE_WIDTH, BASE_HEIGHT } from '../engine/renderer.js';
 
 export const PEG_TYPES = {
   BLUE: 'blue',
@@ -94,6 +94,11 @@ export class Peg {
 
     const color = this.hit ? HIT_COLOR : PEG_COLORS[this.type];
     drawCircle(this.x, this.y, drawRadius, color, alpha);
+
+    // Owner name label below peg
+    if (this.owner && !this.removing) {
+      drawText(this.owner, this.x, this.y + drawRadius + 3, '#cccccc', '12px sans-serif', 'center');
+    }
   }
 
   move(direction) {
