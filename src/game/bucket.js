@@ -1,7 +1,7 @@
 import { Bodies, Body, addBody } from '../engine/physics.js';
 import { drawRect, BASE_WIDTH, BASE_HEIGHT } from '../engine/renderer.js';
 
-const BUCKET_WIDTH = 80;
+const BUCKET_WIDTH = 140;
 const BUCKET_HEIGHT = 20;
 const BUCKET_Y = BASE_HEIGHT - 15;
 const BUCKET_SPEED = 2;

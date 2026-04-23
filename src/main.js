@@ -115,7 +115,7 @@ window.addEventListener('keydown', (e) => {
   if (myPeg && !myPeg.removed) {
     const dirMap = { w: 'up', a: 'left', s: 'down', d: 'right' };
     if (dirMap[key]) {
-      myPeg.move(dirMap[key]);
+      myPeg.move(dirMap[key], pegs);
     }
   }
 });

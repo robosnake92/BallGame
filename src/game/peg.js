@@ -83,11 +83,6 @@ export class Peg {
     const scaleMultiplier = this.removing ? 1 - this.removeProgress * 0.5 : 1;
     const drawRadius = this.radius * (this.hit && !this.removing ? 1.15 : scaleMultiplier);
 
-    // Owner outline
-    if (this.owner && !this.hit) {
-      drawCircle(this.x, this.y, drawRadius + 2, OWNER_OUTLINE_COLOR, alpha * 0.6);
-    }
-
     if (this.hit) {
       drawCircle(this.x, this.y, drawRadius + 3, HIT_COLOR, alpha * 0.4);
     }
@@ -101,7 +96,7 @@ export class Peg {
     }
   }
 
-  move(direction) {
+  move(direction, allPegs) {
     if (!this.owner || this.hit) return;
     const directions = {
       left:  { x: -MOVE_SPEED, y: 0 },
@@ -110,10 +105,29 @@ export class Peg {
       down:  { x: 0, y: MOVE_SPEED },
     };
     const delta = directions[direction];
-    if (delta) {
-      this.x += delta.x;
-      this.y += delta.y;
+    if (!delta) return;
+
+    let newX = this.x + delta.x;
+    let newY = this.y + delta.y;
+
+    // Push out of any overlapping pegs
+    const minDist = this.radius * 2;
+    for (const other of allPegs) {
+      if (other === this || other.removed) continue;
+      const dx = newX - other.x;
+      const dy = newY - other.y;
+      const distSq = dx * dx + dy * dy;
+      if (distSq < minDist * minDist && distSq > 0) {
+        const dist = Math.sqrt(distSq);
+        const overlap = minDist - dist;
+        // Push away from the other peg
+        newX += (dx / dist) * overlap;
+        newY += (dy / dist) * overlap;
+      }
     }
+
+    this.x = newX;
+    this.y = newY;
   }
 }
 
