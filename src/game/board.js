@@ -27,11 +27,15 @@ export function createBoard() {
     const colsInRow = COLS;
     const y = MARGIN_TOP + row * rowSpacing;
 
-    // How far left/right can the ball reach at this row's depth?
+    // How far left/right can the ball realistically reach at this row's depth?
+    // Use a tighter angle than the launcher limit to account for gravity curving
+    // the ball inward — the effective reach shrinks as the row gets deeper.
     const dy = y - launcherY;
-    const maxReachX = dy / Math.tan(minAngle);
-    const reachableLeft = Math.max(MARGIN_X, launcherX - maxReachX + 20);
-    const reachableRight = Math.min(BASE_WIDTH - MARGIN_X, launcherX + maxReachX - 20);
+    const effectiveAngle = minAngle * 1.8; // gravity pulls the ball inward significantly
+    const maxReachX = dy / Math.tan(effectiveAngle);
+    const padding = 30;
+    const reachableLeft = Math.max(MARGIN_X, launcherX - maxReachX + padding);
+    const reachableRight = Math.min(BASE_WIDTH - MARGIN_X, launcherX + maxReachX - padding);
     const rowWidth = reachableRight - reachableLeft;
     const rowColSpacing = colsInRow > 1 ? rowWidth / (colsInRow - 1) : 0;
 
