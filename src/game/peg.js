@@ -1,5 +1,5 @@
-import { Bodies, addBody, removeBody } from '../engine/physics.js';
-import { drawCircle } from '../engine/renderer.js';
+import { Bodies, Body, addBody, removeBody } from '../engine/physics.js';
+import { drawCircle, BASE_WIDTH, BASE_HEIGHT } from '../engine/renderer.js';
 
 export const PEG_TYPES = {
   BLUE: 'blue',
@@ -14,8 +14,11 @@ const PEG_COLORS = {
 };
 
 const HIT_COLOR = '#ffffaa';
+const OWNER_OUTLINE_COLOR = '#ffffff';
 const PEG_RADIUS = 12;
 const FADE_DURATION = 500; // ms
+const MOVE_SPEED = 3;
+const BOUNDARY_MARGIN = 20;
 
 export class Peg {
   constructor(x, y, type = PEG_TYPES.BLUE) {
@@ -48,7 +51,22 @@ export class Peg {
     this.removeStartTime = currentTime;
   }
 
+  assign(ownerName) {
+    this.owner = ownerName;
+  }
+
   update(currentTime) {
+    // Clamp owned pegs to play area boundaries
+    if (this.owner && !this.removing) {
+      const minX = BOUNDARY_MARGIN + this.radius;
+      const maxX = BASE_WIDTH - BOUNDARY_MARGIN - this.radius;
+      const minY = BOUNDARY_MARGIN + this.radius;
+      const maxY = BASE_HEIGHT - BOUNDARY_MARGIN - this.radius;
+      this.x = Math.max(minX, Math.min(maxX, this.x));
+      this.y = Math.max(minY, Math.min(maxY, this.y));
+      Body.setPosition(this.body, { x: this.x, y: this.y });
+    }
+
     if (this.removing) {
       this.removeProgress = Math.min(1, (currentTime - this.removeStartTime) / FADE_DURATION);
       if (this.removeProgress >= 1) {
@@ -65,8 +83,12 @@ export class Peg {
     const scaleMultiplier = this.removing ? 1 - this.removeProgress * 0.5 : 1;
     const drawRadius = this.radius * (this.hit && !this.removing ? 1.15 : scaleMultiplier);
 
+    // Owner outline
+    if (this.owner && !this.hit) {
+      drawCircle(this.x, this.y, drawRadius + 2, OWNER_OUTLINE_COLOR, alpha * 0.6);
+    }
+
     if (this.hit) {
-      // Glow effect
       drawCircle(this.x, this.y, drawRadius + 3, HIT_COLOR, alpha * 0.4);
     }
 
@@ -74,10 +96,19 @@ export class Peg {
     drawCircle(this.x, this.y, drawRadius, color, alpha);
   }
 
-  // Future Twitch integration: apply velocity impulse to move peg
   move(direction) {
-    // Will be implemented when Twitch integration is added
-    // Body.setVelocity(this.body, { x: dx, y: dy });
+    if (!this.owner || this.hit) return;
+    const directions = {
+      left:  { x: -MOVE_SPEED, y: 0 },
+      right: { x: MOVE_SPEED,  y: 0 },
+      up:    { x: 0, y: -MOVE_SPEED },
+      down:  { x: 0, y: MOVE_SPEED },
+    };
+    const delta = directions[direction];
+    if (delta) {
+      this.x += delta.x;
+      this.y += delta.y;
+    }
   }
 }
 

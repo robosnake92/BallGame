@@ -71,7 +71,34 @@ onCollision((event) => {
   }
 });
 
-// Input handling
+// Keyboard input — R to assign random peg, WASD to move owned peg
+let myPeg = null;
+
+window.addEventListener('keydown', (e) => {
+  const key = e.key.toLowerCase();
+
+  if (key === 'r') {
+    // Assign a random unowned, unhit peg
+    const available = pegs.filter(p => !p.owner && !p.hit && !p.removed);
+    if (available.length > 0) {
+      // Unassign previous peg if any
+      if (myPeg && !myPeg.removed) {
+        myPeg.owner = null;
+      }
+      myPeg = available[Math.floor(Math.random() * available.length)];
+      myPeg.assign('player');
+    }
+  }
+
+  if (myPeg && !myPeg.removed) {
+    const dirMap = { w: 'up', a: 'left', s: 'down', d: 'right' };
+    if (dirMap[key]) {
+      myPeg.move(dirMap[key]);
+    }
+  }
+});
+
+// Click input
 canvas.addEventListener('click', () => {
   if (state === STATES.TITLE) {
     startGame();
@@ -140,12 +167,13 @@ function gameLoop(currentTime) {
   const delta = currentTime - lastTime;
   lastTime = currentTime;
 
-  // Update physics
-  if (state === STATES.FIRING || state === STATES.RESOLVING) {
+  // Update physics (always step so owned pegs can move)
+  if (state === STATES.AIMING || state === STATES.FIRING || state === STATES.RESOLVING) {
     stepPhysics(1000 / 60);
     bucket.update();
-  } else if (state === STATES.AIMING) {
-    bucket.update();
+    for (const peg of pegs) {
+      peg.update(currentTime);
+    }
   }
 
   // State-specific logic
@@ -177,13 +205,8 @@ function gameLoop(currentTime) {
     }
   }
 
-  // Update peg removal animations (during both firing and resolving)
-  if (state === STATES.FIRING || state === STATES.RESOLVING) {
-    for (const peg of pegs) {
-      peg.update(currentTime);
-    }
-    pegs = pegs.filter(p => !p.removed);
-  }
+  // Clean up fully removed pegs
+  pegs = pegs.filter(p => !p.removed);
 
   if (state === STATES.RESOLVING) {
 
