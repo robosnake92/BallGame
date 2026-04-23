@@ -71,7 +71,25 @@ onCollision((event) => {
   }
 });
 
-// Keyboard input — R to assign random peg, WASD to move owned peg
+// Sound effects
+const SCREAM_SOUNDS = [
+  '/sounds/freesound_community-cartoon-scream-1-6835.mp3',
+  '/sounds/freesound_community-panic-stricken-screaming-1-6880.mp3',
+  '/sounds/universfield-a-scream-of-a-panic-stricken-female-191977.mp3',
+  '/sounds/universfield-intense-male-falling-scream-244325.mp3',
+  '/sounds/universfield-male-extreme-scream-123078.mp3',
+  '/sounds/universfield-man-scream-010-277572.mp3',
+  '/sounds/untitled-creator-man-screaming-417689.mp3',
+  '/sounds/wakanatsukiko-female-scream-short-251067.mp3',
+];
+
+function playScream() {
+  const src = SCREAM_SOUNDS[Math.floor(Math.random() * SCREAM_SOUNDS.length)];
+  const audio = new Audio(src);
+  audio.play().catch(() => {});
+}
+
+// Keyboard input — R to assign random peg, WASD to move owned peg, Q for scream
 let myPeg = null;
 
 window.addEventListener('keydown', (e) => {
@@ -88,6 +106,10 @@ window.addEventListener('keydown', (e) => {
       myPeg = available[Math.floor(Math.random() * available.length)];
       myPeg.assign('player');
     }
+  }
+
+  if (key === 'q') {
+    playScream();
   }
 
   if (myPeg && !myPeg.removed) {
